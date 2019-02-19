@@ -84,14 +84,14 @@ class ClassifierTrainer(object):
       loss_history.append(cost)
 
       # perform a parameter update
-      for p in model:
+      for p in model: # model is a dictionary
         # compute the parameter step
         if update == 'sgd':
           #####################################################################
           # TODO: implement the SGD update formula and store the step         #
           # update into variable dx.                                          #
           #####################################################################
-          pass
+          dx = -learning_rate * grads[p]
           #####################################################################
           #                      END OF YOUR CODE                             #
           #####################################################################

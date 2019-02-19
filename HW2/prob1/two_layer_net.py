@@ -276,6 +276,7 @@ from cs231n.vis_utils import visualize_grid
 # Visualize the weights of the network
 
 def show_net_weights(model):
+    plt.figure()
     plt.imshow(visualize_grid(model['W1'].T.reshape(-1, 32, 32, 3), padding=3).astype('uint8'))
     plt.gca().axis('off')
     plt.show()
@@ -306,7 +307,6 @@ show_net_weights(model)
 #adding features to the solver, etc.).
 
 
-
 best_model = None # store the best model into this 
 
 #################################################################################
@@ -321,13 +321,38 @@ best_model = None # store the best model into this
 # write code to sweep through possible combinations of hyperparameters          #
 # automatically like we did on the previous assignment.                         #
 #################################################################################
+from cs231n.classifiers.neural_net import two_layer_net
+
 # input size, hidden size, number of classes
-pass
+input_size = 32 * 32 * 3
+hidden_sizes = [50, 300]
+num_classes = 10
+learning_rates = [1e-4, 2e-3]
+regularization_strengths = [0.1, 2.0]
+
+for hidden_size in range(hidden_sizes[0], hidden_sizes[1], 50):
+    for learning_rate in np.arange(learning_rates[0], learning_rates[1], 3e-4):
+        for reg in np.arange(regularization_strengths[0], regularization_strengths[1], 0.4):
+            net = ClassifierTrainer()
+            model = init_two_layer_model(input_size, hidden_size, num_classes)
+            print("Training...")
+            net.train(X_train, y_train, X_val, y_val,
+                      model, two_layer_net,
+                      learning_rate=learning_rate, momentum=0.5, learning_rate_decay=0.95,
+                      reg=reg, verbose=True)
+
+            # Predict on the validation set
+            val_acc = (net.predict(X_val) == y_val).mean()
+            print('Validation Accuracy: ', val_acc)
+
+            if val_acc > best_acc:
+                best_acc = val_acc
+                best_model = net
+
+print("Training Complete")
 #################################################################################
 #                               END OF YOUR CODE                                #
 #################################################################################
-
-
 # visualize the weights
 show_net_weights(best_model)
 

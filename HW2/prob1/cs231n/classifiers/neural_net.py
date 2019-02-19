@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 # from cs231n.layers import *
+
 from cs231n.layer_utils import *
 
 def relu(x):
@@ -88,7 +89,13 @@ def two_layer_net(X, model, y=None, reg=0.0):
   # Store the result in the scores variable, which should be an array of      #
   # shape (N, C).                                                             #
   #############################################################################
-  pass
+  # First layer
+  layer1, cache1 = affine_forward(X, W1, b1)
+  layer2, _ = relu_forward(layer1)
+
+  # Second layer
+  layer3, cache2 = affine_forward(layer2, W2, b2)
+  scores = layer3
   #############################################################################
   #                              END OF YOUR CODE                             #
   #############################################################################
@@ -106,7 +113,11 @@ def two_layer_net(X, model, y=None, reg=0.0):
   # classifier loss. So that your results match ours, multiply the            #
   # regularization loss by 0.5                                                #
   #############################################################################
-  pass
+  # Compute the Softmax loss
+  loss, dx = softmax_loss(scores, y)
+
+  # L2 Regularization
+  loss += 0.5 * reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
   #############################################################################
   #                              END OF YOUR CODE                             #
   #############################################################################
@@ -118,8 +129,28 @@ def two_layer_net(X, model, y=None, reg=0.0):
   # and biases. Store the results in the grads dictionary. For example,       #
   # grads['W1'] should store the gradient on W1, and be a matrix of same size #
   #############################################################################
+  # Initialization
+  dloss = 1.0
 
-  pass
+  # Compute the gradient of the Softmax layer
+  dlayer3 = dx * dloss
+
+  # Compute the gradient of the Affine layer
+  dlayer2, dW2, db2 = affine_backward(dlayer3, cache2)
+
+  # Compute the gradient of the Relu layer
+  dlayer1 = relu_backward(dlayer2, layer1)
+  _, dW1, db1 = affine_backward(dlayer1, cache1)
+
+  # L2 Regularization
+  dW1 += reg * W1
+  dW2 += reg * W2
+
+  # Put the results into the dictionary
+  grads['W1'] = dW1
+  grads['W2'] = dW2
+  grads['b1'] = db1
+  grads['b2'] = db2
   #############################################################################
   #                              END OF YOUR CODE                             #
   #############################################################################
